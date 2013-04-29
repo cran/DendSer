@@ -1,0 +1,14 @@
+import(compiler)
+
+export(
+    dser,DendSer, costLS,costED, costPL,costARc,costLPL,costBAR,plotAsColor,crit2cost
+    )
+    
+
+
+S3method(dser, data.frame)
+S3method(dser, matrix)
+S3method(dser, dist)
+S3method(dser, hclust)
+
+useDynLib(DendSer,clpl,cpl,cbar,carct)
