@@ -6,7 +6,8 @@ Function that plots a matrix as a color image}
 	Function that plots a matrix as a color image, in matrix order.
 }
 \usage{
-plotAsColor(m,  order = NULL, order.col = order, order.row = order, rank = FALSE, border.color = "grey70", labels = FALSE,x=1:ncol(d),y=1:nrow(d), ...)
+plotAsColor(m,  order = NULL, order.col = order, order.row = order, 
+rank = FALSE, border.color = "grey70", labels = FALSE,x=1:ncol(d),y=1:nrow(d), ...)
 }
 \arguments{
   \item{m}{

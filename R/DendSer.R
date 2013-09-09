@@ -111,9 +111,7 @@ preph1 <- function(h,o,oldse,kmax){
 	n <- nrow(m)
 	se <- oldse$se
 	mat <- oldse$sort.int
-	#mat <- 	sort.int(o,method="quick",na.last=NA,index.return=TRUE)$ix
-	mat <- oldse$sort.int
-    y <- which(oldse$order !=o)
+	y <- which(oldse$order !=o)
     mat[o[y]]<-y
 
     if (m[kmax,2] > 0 || m[kmax,1] > 0){
@@ -155,16 +153,26 @@ preph1 <- function(h,o,oldse,kmax){
 
 
 
-defaultOp <- function(costfn) {
+defaultOp <- function(costfn,n) {
 	if (identical(costfn,costLS))
 	  list(t0,"up",1, FALSE)
 	 else if (identical(costfn,costED))
 	   list(r1,"up",1, FALSE)
-	else if (identical (costfn,costARc))
-	  list(t0,"down",10,FALSE)
-	else if (identical (costfn,costPL))
-	  list(c0,"down",10,TRUE)
-  else  list(r01,"down",10,FALSE) #LPL,BAR
+	else if (identical (costfn,costARc)){
+		if (n >= 300)
+		 list(t0,"down",10,FALSE)
+		else list(r01,"down",10,TRUE)
+	}
+	else if (identical (costfn,costBAR)){
+		if (n >= 300)
+		 list(c0,"down",10,TRUE)
+		else list(r01,"down",10,TRUE)
+	}
+	else { # PL, LPL and others
+		if (n >= 1000)
+		 list(c0,"down",10,TRUE)
+		else list(r01,"down",10,TRUE)
+	}
 }
 
 
@@ -180,7 +188,7 @@ defaultOpE <- function(costfn) {
 
 
 
-DendSer <- function(h, ser_weight,  cost=costBAR, node_op=NULL, costArg=NULL, maxloops=NULL, saveinfo=FALSE,direction=NULL,faster=FALSE,GW=NULL,...){
+DendSer <- function(h, ser_weight,  cost=costBAR, node_op=NULL, costArg=NULL, maxloops=NULL, saveinfo=FALSE,direction=NULL,GW=NULL,...){
 	
 	if (identical(cost,costED)) return (gclus::reorder.hclust(h,ser_weight)$order)
 	if (identical(cost,costLS)) return (leafSort(h,ser_weight))
@@ -219,10 +227,7 @@ DendSer <- function(h, ser_weight,  cost=costBAR, node_op=NULL, costArg=NULL, ma
 	
 	
   if (is.null(node_op) || is.null(direction) || is.null(maxloops)){
-     if (faster) 
-       nop <- defaultOpE(cost)
-     else
-       nop <- defaultOp(cost)
+        nop <- defaultOp(cost,n)
      if (is.null(node_op)) node_op <- nop[[1]]  
      if (is.null(direction)) direction <- nop[[2]] 
      if (is.null(maxloops)) maxloops <- nop[[3]] 

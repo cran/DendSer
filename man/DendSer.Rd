@@ -8,7 +8,8 @@
  Implements dendrogram seriation. 
 }
 \usage{
-DendSer(h, ser_weight, cost = costBAR, node_op = NULL, costArg = NULL, maxloops = NULL, saveinfo = FALSE, direction = NULL, faster = FALSE, GW=NULL,...)
+DendSer(h, ser_weight, cost = costBAR, node_op = NULL, costArg = NULL, 
+maxloops = NULL, saveinfo = FALSE, direction = NULL,  GW=NULL,...)
 }
 %- maybe also 'usage' for other objects documented here.
 \arguments{
@@ -33,9 +34,7 @@ DendSer(h, ser_weight, cost = costBAR, node_op = NULL, costArg = NULL, maxloops 
 }
   \item{direction}{
      Order of visiting nodes. Values are "up" or "down", for nodes in order of increasing or decreasing height.NULL means use default depending on cost.}
-  \item{faster}{
-    Logical, use faster though sub-optimal node_op.}
-    \item{GW}{
+     \item{GW}{
     Logical, initial GW step or not. NULL means use default depending on cost.}
   \item{\dots}{
      Not used.

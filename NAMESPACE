@@ -1,4 +1,4 @@
-import(compiler)
+import(compiler,gclus,seriation)
 
 export(
     dser,DendSer, costLS,costED, costPL,costARc,costLPL,costBAR,plotAsColor,crit2cost
