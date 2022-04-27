@@ -1,5 +1,5 @@
-40205e4020c567a4e126579ab964c37e *DESCRIPTION
-f92499ea547b9adb00c4ae74681648dd *NAMESPACE
+36feb23e73d67d178792c366f7bebb5e *DESCRIPTION
+29093d30f1bba8a8e099b3cbdebbfb63 *NAMESPACE
 552800b3a09d730a7b5d3e32988c95e5 *R/DendSer.R
 c3ed81fe41834831b3913b2d6a988cf2 *R/cost.R
 8d29098a11bcaa67bc7d9e0cdc2838b0 *R/dser.R
@@ -17,6 +17,7 @@ f109f198b9a3c1aac0d68968a869f6d9 *man/costARc.Rd
 fdb71afde0544dbd29afbe8c88bfe90c *man/crit2cost.Rd
 c58cd0a786dcb6f8446cee018057741d *man/dser.Rd
 c3e1f88f10ef4adc1e05a1ec6545e2aa *man/plotAsColor.Rd
+9d42c4ea0e77a91c5d2d0a223cb56e35 *src/DendSer_init.c
 384ce245f0b450bc98ddfcf8212efec3 *src/carct.c
 3149d28bece0baae60457c8ef13c55b9 *src/cbar.c
 3d63b72978f02d3da52492da1200c3d9 *src/clpl.c

@@ -5,10 +5,13 @@ export(
     )
     
 
-
+importFrom("graphics", "axis", "box", "image")
+importFrom("stats", "as.dist", "dist", "hclust")
+importFrom("utils", "getFromNamespace", "modifyList")
+    
 S3method(dser, data.frame)
 S3method(dser, matrix)
 S3method(dser, dist)
 S3method(dser, hclust)
 
-useDynLib(DendSer,clpl,cpl,cbar,carct)
+useDynLib(DendSer, clpl,cpl,cbar,carct,.registration = TRUE)
