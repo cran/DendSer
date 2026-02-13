@@ -1,3 +1,28 @@
+#' Function that plots a matrix as a color image
+#' 
+#' Function that plots a matrix as a color image, in matrix order.
+#' 
+#' 
+#' @param m Numeric matrix.
+#' @param order Default order used for rows and columns.
+#' @param order.col Column order.
+#' @param order.row Row order
+#' @param rank Logical, whether matrix m should be converted to ranks or not.
+#' @param border.color Color of border. Null for no border.
+#' @param labels If TRUE, add labels obtained from m.
+#' @param x X coordinates, passed to \code{image}.
+#' @param y Y coordinates, passed to \code{image}.
+#' @param \dots passed to \code{image}.
+#' @seealso See Also as \code{\link{image}}.
+#' @examples
+#' 
+#' 	 			
+#' 
+#' d<- dist(scale(iris[,-5]))
+#' plotAsColor(d,dser(d,hmethod="average"))
+#' 
+#' 
+#' @export plotAsColor
 plotAsColor <-
 function(m,order=NULL,order.col=order,order.row=order,rank=FALSE, 
     border.color = "grey70", labels=FALSE,x=1:ncol(d),y=1:nrow(d),...)	{

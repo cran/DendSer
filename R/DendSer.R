@@ -1,6 +1,3 @@
-
-
-
 preph <- function(h,o){
 	m <- h$merge
 	n <- nrow(m)
@@ -188,19 +185,66 @@ defaultOpE <- function(costfn) {
 
 
 
+
+
+#' Implements dendrogram seriation
+#' 
+#' Implements dendrogram seriation.
+#' 
+#' costED uses the Gruvaeus and Wainer 1972 algorithm, as provided by package
+#' gclus.
+#' 
+#' @param h An object of class hclust
+#' @param ser_weight Used by cost function to evaluate ordering. For
+#' cost=costLS, this is a vector of object weights. Otherwise is a dist or
+#' symmetric matrix.
+#' @param cost Function used to evaluate permutation.Current choices are
+#' costLS, costPL, costLPL, costED, costARc, costBAR.
+#' @param node_op Function used to reorder branches at a dendrogram node.
+#' DendSer picks default depending on cost function. NULL means use default
+#' depending on cost.
+#' @param costArg Other args for cost function.
+#' @param maxloops Maximum number of iterations allowed. NULL means use default
+#' depending on cost.
+#' @param saveinfo Logical, whether info associated with search is saved.
+#' @param direction Order of visiting nodes. Values are "up" or "down", for
+#' nodes in order of increasing or decreasing height.NULL means use default
+#' depending on cost.
+#' @param GW Logical, initial GW step or not. NULL means use default depending
+#' on cost.
+#' @param \dots Not used.
+#' @return Numeric vector giving an optimal dendrogram order
+#' @author Catherine Hurley & Denise Earle
+#' @seealso \code{\link{dser}}
+#' @references Gruvaeus, G. & Wainer, H. (1972), ``Two additions to
+#' hierarchical cluster analysis'', British Journal of Mathematical and
+#' Statistical Psychology, 25, 200-206.
+#' @examples
+#' 
+#' 	 			
+#' 
+#' d<- dist(iris[,-5])
+#' h <- hclust(d,method="average")
+#' ob<- DendSer(h,d)
+#' opl<- DendSer(h,d,cost=costPL)
+#' plotAsColor(d,ob)
+#' 
+#' w <- rowSums(iris[,-5])
+#' ow <- DendSer(h,w,cost=costLS) # arranges cases by size, within hclust
+#' stars(iris[ow,-5],labels=NULL, col.stars=cutree(h,3)[ow]) # and color by cluster
+#' #stars(iris[ow,-5],labels=NULL, col.stars=iris[ow,5]) # or by species
+#' 
+#' 
+#' 
+#' @export DendSer
 DendSer <- function(h, ser_weight,  cost=costBAR, node_op=NULL, costArg=NULL, maxloops=NULL, saveinfo=FALSE,direction=NULL,GW=NULL,...){
 	
-	if (identical(cost,costED)) return (gclus::reorder.hclust(h,ser_weight)$order)
-	if (identical(cost,costLS)) return (leafSort(h,ser_weight))
-	
+		
 	if (is.character(node_op))
 	   node_op <- getFromNamespace(node_op, "DendSer")
 	    
 	if (! inherits(h,"hclust"))
 	   stop("'h' must inherit from hclust")
-	   
-	   
-    
     n <- length(h$order)
        
 	if (isTRUE(all.equal(cost, costLS))){
@@ -218,11 +262,12 @@ DendSer <- function(h, ser_weight,  cost=costBAR, node_op=NULL, costArg=NULL, ma
 		   ser_weight <- as.matrix(ser_weight)
 	 if (!is.matrix(ser_weight) || nrow(ser_weight) != ncol(ser_weight))
 		  stop(paste("'ser_weight' must be a numeric symmetric ",n ,"x" ,n," matrix or a dist",sep=""))
-		 
-	 rownames(ser_weight) <- colnames(ser_weight) <- NULL
+		 rownames(ser_weight) <- colnames(ser_weight) <- NULL
 	 }
 	 
     
+    if (identical(cost,costED)) return (gclus::reorder.hclust(h,ser_weight)$order)
+    if (identical(cost,costLS)) return (leafSort(h,ser_weight))
     
 	
 	
@@ -308,11 +353,5 @@ DendSer <- function(h, ser_weight,  cost=costBAR, node_op=NULL, costArg=NULL, ma
     return(ord)
 }
 
-
-preph <- cmpfun(preph)
-preph1 <- cmpfun(preph1)
-
-
-DendSer <- cmpfun(DendSer)
 
 

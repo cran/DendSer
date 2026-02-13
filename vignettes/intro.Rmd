@@ -1,0 +1,169 @@
+---
+title: "Introduction to DendSer"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{intro}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>"
+)
+```
+
+```{r setup, message=FALSE}
+library(DendSer)
+```
+
+## Calculating orderings
+
+This package is an implementation of the ordering or seriation methods described in the paper "Advances in dendrogram seriation for application to visualization", JCGS (2015) D. Earle and C.B. Hurley  <doi:10.1080/10618600.2013.874295>.
+
+It is well-known that re-ordering objects in a plot, usually representing cases or variables, can lead to a more informative graphic where interpretations are simplified.
+
+There are many algorithms for seriation, and the package seriation offers a comprehensive selection.
+
+In DendSer, we offer algorithms that are based on dendrograms. A dendrogram is a graphical representation of a hierarchical clustering. A dendrogram also provides an ordering of the clustered objects. However, the ordering is not unique, and there are $2^{n-1}$ re-orderings of the $n$ clustered objects that are consistent with the dendrogram. The DendSer algorithms aims to pick the best of these re-orderings, based on some criterion. The algorithm is a greedy search algorithm that evaluates the criterion or cost function on a series of node translations and/or reflections. 
+
+There are five cost functions implemented:
+
+
+
+
+Given a symmetric weight matrix $\bf W$ (think of it as representing dissimilarities between  pairs of objects) and a permutation, the measures are described as:
+
+- `costPL`. This path length sums the weights $w$ between consecutive objects in a given permutation $\pi$. This is useful when the goal is to place the most similar objects adjacently. $$\mbox{PL}(\pi) = \sum_{i=1}^{n-1}w_{\pi(i),\pi(i+1)}$$
+
+- `costLPL`. This lazy path length measure  is a weighted measure of path length.
+This is useful when the goal is twofold: to place the most similar objects adjacently and for the consecutive weights to have a generally increasing pattern. $$\mbox{LPL}(\pi) = \sum_{i=1}^{n-1}(n-i)w_{\pi(i),\pi(i+1)}$$  In visualization applications,   LPL-based seriation offers a form of importance sorting.
+
+-  `costARc`. This is a weighted sum of the entries in $\bf W$. The goal is to produce a permutation where similar objects are nearby (as opposed to costPL which aims to place  similar objects adjacently)  $$\mbox{ARc}(\pi) =\sum_{|i-j| \le n-1}(n-|i-j|)w_{\pi(i),\pi(j)}$$. More precisely, this is a measure of the anti-Robinson form pattern in the weight matrix induced by the permutation. A symmetric matrix where entries  $w_{i,j}$ are  non-decreasing moving away from the main diagonal along rows and columns
+is said to have anti-Robinson form.
+
+-  `costBAR`. This measures banded  anti-Robinson form, which seeks anti-Robinson pattern for entries in the first $b$ off-diagonals, where $b$ defaults to $n/5$. $$\mbox{BAR}(\pi) = \sum_{|i-j| \le b}(b+1-|i-j|)w_{\pi(i),\pi(j)}$$. This is a compromise between `costPL` and `costARC` and is our default choice.
+
+-  `costLS`. This is leaf sort, where the goal is to put dendrogram leaf weights in increasing order. This uses a vector $v$ of object weights, and the cost function is $$\mbox{LS}(\pi) = -\sum_{i=1}^{n}iv_{\pi(i)}$$. `costLPL` can be thought of as a compromise between `costLS` and `costPL`.
+
+
+
+The workhorse function that implements our dendrogram seriation algorithm is `DendSer`. 
+The main arguments to this are
+- `h`: the result of a call to `hclust` on a `dist` d
+- `ser_weight`: a symmetric matrix or a `dist`, usually the same as that used in the `hclust` calculation.
+-  cost: one of the cost functions listed above, defaulting to costBAR. If the cost function costLS is used, `ser_weight` should be a vector of object weights.
+
+For explanations of the other arguments see the detailed algorithm in the JCGS paper. The defaults for these arguments depend on the choice of cost function.
+
+For completeness, we offer another possibility for the cost argument, namely `costED`. This is not strictly speaking a cost function but specifying `cost=costED`, DendSer runs the Gruvaeus and Wainer (1972) dendrogram seriation algorithm. This goes through dendrogram nodes rearranging left and right sub-nodes so that the two most low-weight (most similar) objects at the edges of the sub-nodes are placed adjacently.
+
+```{r}
+set.seed(123)
+iris1 <- iris[sample(nrow(iris),10), -5]
+d <- dist(scale(iris1))
+h <- hclust(d, method="average")
+DendSer(h,d, cost=costPL)
+DendSer(h,d, cost=costLPL)
+DendSer(h,d, cost=costARc)
+DendSer(h,d, cost=costBAR)
+DendSer(h,1:10, cost=costLS) # a dendrogram ordering "most" consistent with 1...10
+DendSer(h,d, cost=costED) # same as gclus::reorder.hclust
+```
+
+All of the above calls to `DendSer` produce re-orderings of the rows of `iris1`.
+
+
+An additional function `dser` simplifies the process of producing an ordering.
+
+Starting from a dataframe, the above orderings of `iris1` are produced using `dser` as
+
+```{r}
+dser(iris1,d, cost=costPL, scale=TRUE)
+dser(iris1,d, cost=costLPL, scale=TRUE)
+dser(iris1,d, cost=costARc, scale=TRUE)
+dser(iris1,d, cost=costBAR, scale=TRUE)
+dser(iris1,1:10, cost=costLS, scale=TRUE) # a dendrogram ordering "most" consistent with 1...10
+dser(iris1,d, cost=costED, scale=TRUE) # same as gclus::reorder.hclust
+```
+There are optional arguments `hmethod` (default to "average") which is used as the method argument to `hclust`,  and `dmethod`  (default to "euclidean") which is the method argument passed to `dist`.
+
+
+The main function for producing the ordering is `dser`.
+
+## Visualisations with orderings
+
+
+### Re-ordered heatmap of data
+The iris data as given is ordered by species. We break up this ordering, and then look at a heatmap of scaled observations before and after seriation.
+```{r, fig.width=6}
+iriss <- scale(iris[sample(nrow(iris),150),-5])
+cols <- hcl.colors(12,"PuBuGn" )
+par(mar=c(1,1,1,1))
+par(mfrow=c(1,2))
+plotAsColor(iriss, col=cols)
+newOrd <- dser(iriss)
+plotAsColor(iriss, col=cols,order.row=newOrd)
+```
+
+<!-- ### Stars -->
+
+<!-- We can also explore the effects of ordering with stars. -->
+<!-- ```{r, fig.width=8} -->
+<!-- h <- hclust(dist(scale(iris[,-5])), method="average") -->
+<!-- hOrd <- h$order -->
+
+<!-- par(mar=c(1,1,1,1)) -->
+<!-- par(mfrow=c(1,2)) -->
+<!-- stars(iris[hOrd,-5],labels=NULL, col.stars=cutree(h,3)[hOrd]) # and color by cluster -->
+
+<!-- newOrd <- DendSer(h,dist(scale(iris[,-5]))) -->
+
+<!-- stars(iris[newOrd,-5],labels=NULL, col.stars=cutree(h,3)[newOrd]) # and color by cluster -->
+
+
+<!-- ``` -->
+
+### Re-ordered dendrogram
+
+First draw a dendrogram of the irish clustering. Underneath draw the scores from the first PC, colour by 3-cluster solution.
+The PC scores are smallest for the red cluster, moddling for the green cluster and largest for the blue.
+There is very little alignment between the hclust default order and the order by pc scores.
+```{r,fig.width=8}
+w <- prcomp(iris[,-5],scale=TRUE)$x[,1]
+h<- hclust(dist(scale(iris[,-5]))) # complete linkage by default
+oh <- h$order
+
+# the display
+par(mar=c(0,2,1,1))
+layout(matrix(1:2, nrow = 2), heights = c(4,1.5) )
+par(cex=.7)
+plot(h,main="",xlab="",hang=-1,labels=FALSE)
+u <- par("usr")
+par(mar=c(1,2,0,1))
+plot.new()
+par(usr=c(u[1:2],min(w),max(w)))
+x<- 1:length(w)
+rect(x-.5,0,x+.5,w[oh],col=cutree(h,3)[oh]+1)
+```
+
+Now use DenSer with leaf sort to produce a hclust order that agrees that attempts to put the PC scores in increasing order. It is evident that there is good agreement between PC scores and position in the revised hclust order.
+
+```{r,fig.width=8}
+ h$order <- ow <- DendSer(h,w,cost=costLS) # arranges cases along first PC, within dendrogram
+
+# the display
+par(mar=c(0,2,1,1))
+layout(matrix(1:2, nrow = 2), heights = c(4,1.5) )
+par(cex=.7)
+plot(h,main="",xlab="",hang=-1,labels=FALSE)
+u <- par("usr")
+par(mar=c(1,2,0,1))
+plot.new()
+par(usr=c(u[1:2],min(w),max(w)))
+x<- 1:length(w)
+rect(x-.5,0,x+.5,w[ow],col=cutree(h,3)[ow]+1)
+
+```
+

@@ -169,11 +169,3 @@ t01 <-function(i,o,se,h){
  }
  }
 
-
-r0 <- cmpfun(r0)
-t0 <- cmpfun(t0)
-c0 <- cmpfun(c0)
-r1 <- cmpfun(r1)
-t1 <- cmpfun(t1)
-t01 <- cmpfun(t01)
-r01 <- cmpfun(r01)

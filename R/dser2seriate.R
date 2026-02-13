@@ -1,5 +1,3 @@
-
-
 #--------------
 #seriation framework for dendser
 #--------------
@@ -61,6 +59,33 @@ seriation::set_seriation_method("matrix", "Dendser", seriation_method_leafsort,
 #--------------
 
 
+
+
+#' Cost function from seriation criterion
+#' 
+#' Returns a cost function from seriation criterion (package seriation)
+#' 
+#' 
+#' @param crit One of seriation::list_criterion_methods("dist")
+#' @examples
+#' 
+#' 	 			
+#' 
+#' d<- dist(iris[1:20,-5])
+#' h <- hclust(d)
+#' DendSer(h,d,cost=function(x,o,...) seriation::criterion(as.dist(x),o,method="AR_deviations"))
+#' DendSer(h,d,cost=crit2cost("AR_deviations")) # short version of above
+#' DendSer(h,d,cost=crit2cost("ME"))
+#' 
+#' # use DendSer methods via seriate
+#' # seriation::get_order(seriate(d,method="Dendser", control=list(hclust=h,cost=costARc))) 
+#' DendSer(h,d, cost=costARc)
+#' 
+#' 
+#' 
+#' 
+#' 
+#' @export crit2cost
 crit2cost <- function(crit){
 	merit <- seriation::get_criterion_method("dist", crit)$merit
 	function(dm,o,...){
@@ -75,7 +100,7 @@ crit2cost <- function(crit){
 # examples
 #--------------
 
-# DendSer(h,d,cost=function(x,o,...) criterion(as.dist(x),o,method="AR_deviations"))
+# DendSer(h,d,cost=function(x,o,...) seriation::criterion(as.dist(x),o,method="AR_deviations"))
 # DendSer(h,d,cost=crit2cost("AR_deviations"))
 # DendSer(h,d,cost=crit2cost("ME"))
 
@@ -119,6 +144,6 @@ seriation::set_criterion_method("dist", "LPL", criterion_method_dist_LPL,
 # Examples
 #--------------
 
-# show_criterion_methods("dist")
+# seriation::list_criterion_methods("dist")
 
 # criterion(d)
